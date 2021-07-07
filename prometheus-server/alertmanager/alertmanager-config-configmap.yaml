@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: prometheus-server
+data:
+  config.yml: |
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: email
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      group_by: ['alertname', 'k8scluster', 'node', 'container', 'exported_job', 'daemonset']
+      routes:
+      - receiver: email
+        group_wait: 60s
+        match:
+          severity: warning
+
+    receivers:
+    - name: email
+      email_configs:
+      - to: 'yang@allride.ai'
+        from: 'infra@allride.ai'
+        smarthost: smtp@allrideai.onmicrosoft.com:587
+        auth_username: 'infra@allride.ai'
+        auth_identity: 'infra@allride.ai'
+        auth_password: 'A11ride.Ai'
